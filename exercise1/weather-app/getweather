@@ -1,0 +1,84 @@
+#!/usr/bin/env python3
+
+from typing import final
+from pyowm import OWM
+from os import environ
+
+from requests import api
+
+# initiating enviroment variables
+OWM_API_KEY = environ.get("OWM_API_KEY")
+OWM_CITY = environ.get("OWM_CITY")
+
+
+class WeatherConnector(object):
+    def __init__(self, api_key, city) -> None:
+        self.api_key = api_key
+        self.city = city
+    
+    def _init_connection(self) -> None:
+        """
+        initiating connection with API
+        """
+        try:
+            self.owm = OWM(self.api_key)
+        except AssertionError:
+            pass
+
+    def _input_data_is_valid(self) -> bool:
+        if not self.owm or not self.api_key:
+            print("Wrong API key. Please try again.")
+            return False
+        if not self.city: 
+            print("City needs to be set. Please try again")
+            return False
+        return True
+
+    def _pull_city_data(self) -> None:
+        """
+        Get info about weather at specified place
+        """
+        try:
+            self.city_data = self.weather_manager.weather_at_place(self.city)
+        except:
+            print("Unable to pull data.")
+            self.city_data = None
+
+    def get_weather_data(self):
+        """
+        Connect to the weather service using API key.
+        Return specified data. 
+        """
+        self._init_connection()
+        if not self._input_data_is_valid(): return
+        
+        self.weather_manager = self.owm.weather_manager()
+
+        self._pull_city_data()
+        if not self.city_data: return
+
+        # link all used data with corresponding name
+        return {
+            "city": self.city,
+            "description": self.city_data.weather.detailed_status,
+            "temp": self.city_data.weather.temperature("celsius")["temp"],
+            "humidity": self.city_data.weather.humidity,
+        }     
+
+def printout_data(data):
+    # example:
+    # city="Honolulu", description="few clouds", temp=70.2, humidity=75
+    if not data: return
+    for key in data:
+        # if value is string add quotation mark
+        output = (f'{key}="{data[key]}"' 
+                    if isinstance(data[key], str) 
+                    else f"{key}={data[key]}")
+        print(output, end=", ")
+    print()
+
+if __name__ == "__main__":
+    weather_connector = WeatherConnector(OWM_API_KEY, OWM_CITY) 
+    printout_data(weather_connector.get_weather_data())
+
+
