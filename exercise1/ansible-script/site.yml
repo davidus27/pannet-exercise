@@ -1,0 +1,58 @@
+---
+# This script is going to install docker in the 'docker-group'
+
+- name: Install Docker with enabled container logging
+  hosts: all
+  become: yes
+  become_user: root
+  tasks:
+
+    - name: Install Docker dependencies
+      apt:
+        state: present
+        update_cache: yes
+        pkg:
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+
+    - name: Add Docker's official GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Get DEB architecture
+      shell: dpkg --print-architecture
+      register: deb_architecture
+
+    - name: Add Docker package to the repository
+      apt_repository:
+        repo: "deb [arch={{ deb_architecture.stdout }} signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu focal stable"
+        state: present
+        update_cache: yes
+
+    - name: Install Docker engine
+      apt:
+        update_cache: yes
+        pkg:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: latest
+
+    - name: Create deamon.json file
+      file:
+        path: /etc/docker/daemon.json
+        state: touch
+
+    - name: Enable global container logging to Docker host’s syslog file
+      lineinfile:
+        path: /etc/docker/daemon.json
+        line: '{ "log-driver": "syslog", "log-opts": { "syslog-address": "udp://127.0.0.1:1111" }}'
+      
+    - name: Restart docker service
+      systemd:
+        state: restarted
+        daemon_reload: yes
+        name: docker
