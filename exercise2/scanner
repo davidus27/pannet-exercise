@@ -1,0 +1,28 @@
+#!/usr/bin/env python3
+
+from nmap3 import Nmap
+import ipaddress
+import sys
+
+def printout_scan(scan_result):
+    all_scanned_ips = list(scan_result.keys())[:-2]
+    for ip in all_scanned_ips:
+        print(f"{ ip }:")
+        ports = scan_result[ip]['ports']
+        for port in ports:
+            print(f"* { port['portid'] }/{ port['protocol'] } { port['state'] }")
+        print()
+
+def main(network: str):
+    """
+    Create scan and printout its result
+    """
+    nmap = Nmap()
+    scan = nmap.scan_top_ports(network) # scanning only top ports
+    # scan = nmap.scan_top_ports(network, args='p0-65535')
+
+    printout_scan(scan)
+
+
+if __name__ == "__main__":
+    main(sys.argv[1])
