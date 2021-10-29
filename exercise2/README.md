@@ -26,3 +26,4 @@ $ ./scanner 192.168.1.1/26
 ```
 
 ## 2.2 Kubernetize and deploy the scanner
+The repository is avaliable on Docker hub [here](https://hub.docker.com/repository/docker/nullptr123/network-scanner).
