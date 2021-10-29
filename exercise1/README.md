@@ -11,7 +11,7 @@ sudo apt install -y ansible ansible-playbook
 
 To install Docker we run:
 ```bash
-$ sudo ansible-playbook -i "localhost," -c local site.yml
+$ sudo ansible-playbook -i "localhost," -c local ansible-script/site.yml
 ```
 
 After installation it should behave as wanted:
