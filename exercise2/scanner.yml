@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: periodically-scan
+spec:
+  containers:
+  - name: ubuntu
+    image: scanner:dev
+    command:
+            - /bin/sh
+            - -c
+            - ./scanner 127.0.0.1
+            - date 50;
