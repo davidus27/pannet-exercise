@@ -26,4 +26,30 @@ $ ./scanner 192.168.1.1/26
 ```
 
 ## 2.2 Kubernetize and deploy the scanner
+### Docker
 The repository is avaliable on Docker hub [here](https://hub.docker.com/repository/docker/nullptr123/network-scanner).
+
+To run the application in docker we run:
+```bash
+$ sudo docker build --tag scanner:dev .
+$ sudo docker run scanner:dev python scanner <ip>/<subnet>
+```
+
+### Kubernetes
+
+```bash
+$ kubectl apply -f scanner.yaml
+$ kubectl get cj
+NAME SCHEDULE SUSPEND ACTIVE LAST SCHEDULE AGE
+scanner 0 5 * * * False 0 7m 13m
+```
+
+```bash
+$ sudo docker build --tag scanner:dev .
+$ sudo docker create --name scanning scanner:dev
+$ kubectl apply -f scanner.yml
+$ kubectl get jobs --watch
+$ kubectl get pods --selector=job-name=
+periodic-scan-XXXX
+$ kubectl logs periodic-scan-XXX-XXXX
+```
